@@ -51,7 +51,7 @@
 
 
 (defmethod get-header ((mime-obj mime) (header (eql :content-disposition)))
-  (aif (slot-value mime-obj (intern (string header)))
+  (aif (slot-value mime-obj (intern (string header) :mime))
        (cons header
 	     (format nil "~A~A"
 		     (content-disposition mime-obj)
@@ -64,7 +64,7 @@
 
 
 (defmethod get-header ((mime-obj mime) (header symbol))
-  (aif (slot-value mime-obj (intern (string header)))
+  (aif (slot-value mime-obj (intern (string header) :mime))
        (cons (ensure-keyword header) it)))
 
 
