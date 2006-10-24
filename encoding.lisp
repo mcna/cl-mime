@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; fundamentals.lisp: Package definition and any globals
+;;;; encoding.lisp: Tools for converting content encoding
 ;;;; Copyright (C) 2004 Robert Marlow <bobstopper@bobturf.org>
 ;;;;
 ;;;; This library is free software; you can redistribute it and/or
@@ -20,39 +20,27 @@
 
 
 
-(defpackage :mime
-  (:documentation "A package for constructing MIME objects for printing and
-parsing MIME formatted strings or streams.")
-  (:nicknames :cl-mime)
-  (:use :cl :kmrcl :cl-ppcre)
-  (:shadow :read-stream-to-string)
-  (:export :text-mime
-	   :multipart-mime
-	   :mime
-	   :make-content-id
-	   :content-type
-	   :content-subtype
-	   :content-type-parameters
-	   :content-id
-	   :content-description
-	   :content-transfer-encoding
-	   :content-disposition
-	   :content-disposition-parameters
-	   :mime-version
-	   :charset
-	   :boundary
-	   :prologue
-	   :epilogue
-	   :content
-	   :get-header
-	   :get-mime-headers
-	   :get-content-type-parameter
-	   :get-content-disposition-parameter
-	   :print-headers
-	   :header-value
-	   :header-parms
-	   :header-comments
-	   :print-mime
-	   :parse-mime))
-
 (in-package :mime)
+
+
+(defun encode-content (mime)
+  (if (eql (content-transfer-encoding mime)
+	   (content-encoding mime))
+      (content mime)
+      (let ((content (decode-content mime)))
+	(ecase (content-transfer-encoding mime)
+	  (:7bit content)
+	  (:base64 
+	   (typecase content
+	     (string (string-to-base64-string content :columns 75))
+	     ((array (unsigned-byte 8))
+	      (usb8-array-to-base64-string content :columns 75))))
+	  (:quoted-printable (qprint:encode content))))))
+
+
+(defun decode-content (mime)
+  (ecase (content-encoding mime)
+    (:7bit (content mime))
+    (:base64 (base64-string-to-usb8-array (content mime)))
+    (:quoted-printable (qprint:decode (content mime)))))
+

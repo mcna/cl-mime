@@ -29,8 +29,7 @@ object representing it or nil if the message is not MIME compatible"))
 
 
 (defmethod parse-mime ((mime string) &optional headers)
-  (declare (ignore headers))
-  (parse-mime (make-string-input-stream mime)))
+  (parse-mime (make-string-input-stream mime) headers))
 
 
 (defmethod parse-mime ((mime stream) &optional headers)
@@ -56,19 +55,23 @@ object representing it or nil if the message is not MIME compatible"))
 
       (if (equal mime-version "1.0")
 	
-	  (let ((mime-obj-gen
-		 (list
-		  mime-type
-		  :type content-type
-		  :subtype content-subtype
-					;		:parameters content-parm
-		  :encoding (cdr (assoc :content-transfer-encoding
-					headers))
-		  :description (cdr (assoc :content-description
-					   headers))
-		  :id (remove #\< (remove #\> (cdr (assoc :content-id headers))))
-		  :disposition content-disposition
-		  :disposition-parameters content-disposition-parm)))
+	  (let* ((encoding (intern (or (string-upcase 
+					(cdr (assoc :content-transfer-encoding
+						    headers)))
+				       "7BIT")
+				   :keyword))
+		 (mime-obj-gen
+		  (list
+		   mime-type
+		   :type content-type
+		   :subtype content-subtype
+		   :encoding encoding
+		   :content-encoding encoding
+		   :description (cdr (assoc :content-description
+					    headers))
+		   :id (remove #\< (remove #\> (cdr (assoc :content-id headers))))
+		   :disposition content-disposition
+		   :disposition-parameters content-disposition-parm)))
 	      
 	    (case mime-type
 	      ((text-mime)
@@ -289,3 +292,31 @@ BOUNDARY"
 	       (setq end-type 'end-mime))))
      end-type)))
  
+
+(defparameter *mime-types-file* 
+  (make-pathname :directory '(:absolute "etc")
+		 :name "mime"
+		 :type "types"))
+
+
+(defun lookup-mime (pathname &optional mime-types-file)
+  "Takes a PATHNAME argument and uses MIME-TYPES-FILE (or the system 
+default) to determine the mime type of PATHNAME. Returns two values:
+the content type and the the content subtype"
+  (let ((extension (pathname-type pathname)))
+    (with-open-file
+	(mime (or mime-types-file *mime-types-file*) :direction :input)
+      (read-lines
+	  (line mime)
+	  ((register-groups-bind
+	       (extensions)
+	       ("^[^#\\s]+\\s+([^#]+)" line)
+	     (find extension (split "\\s+" extensions)
+		   :test #'string-equal))
+	   (if (eq line 'eof)
+	       (values "application" "octet-stream")
+	       (register-groups-bind
+		   (content-type content-subtype)
+		   ("^([^\/]+)\/([^\\s]+)" line)
+		 (values (or content-type "application")
+			 (or content-subtype "octet-stream")))))))))

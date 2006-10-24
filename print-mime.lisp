@@ -30,10 +30,14 @@ headers string"
 		    (format nil "~A: ~A~%"
 			    (if (eql :mime-version (car it))
 				"MIME-Version"
-			      (string-capitalize (symbol-name (car it))))
-			    (if (eql :content-id (car it))
-				(format nil "<~A>" (cdr it))
-			      (cdr it))))
+				(string-capitalize (symbol-name (car it))))
+			    (cond
+			      ((eql :content-id (car it))
+			       (format nil "<~A>" (cdr it)))
+			      ((eql :content-transfer-encoding (car it))
+			       (string-downcase (symbol-name (cdr it))))
+			      (t
+			       (cdr it)))))
        headers-out))
 
 
@@ -68,6 +72,7 @@ headers string"
   (:documentation
    "Prints a mime object's contents, optionally with headers"))
 
+
 (defmethod print-mime (stream (mime-obj mime) headers-p version-p)
   (format stream "~A~A"
 	  (if headers-p
@@ -75,8 +80,8 @@ headers string"
 			   (print-headers nil (get-mime-headers mime-obj)
 					  version-p)
 			   (string #\newline))
-	    "")
-	  (content mime-obj)))
+	      "")
+	  (encode-content mime-obj)))
 
 
 (defmethod print-mime (stream (mime-obj multipart-mime) headers-p version-p)

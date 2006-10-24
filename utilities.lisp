@@ -47,3 +47,18 @@ Executes BODY for every line in the file"
 		   (,exit-clause t)
 		   (princ ,line-var ,string-stream)
 		   (terpri ,string-stream)))))
+
+
+;;; These macros stolen from KMRCL
+(defmacro aif (test then &optional else)
+  `(let ((it ,test))
+    (if it ,then ,else)))
+
+
+(defun ensure-keyword (name)
+  "Returns keyword for a name"
+  (etypecase name
+    (keyword name)
+    (string (nth-value 0 (intern (string-upcase name) :keyword)))
+    (symbol (nth-value 0 (intern (symbol-name name) :keyword)))))
+

@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; mime.asd: System Definition
+;;;; cl-mime.asd: System Definition
 ;;;; Copyright (C) 2004 Robert Marlow <bobstopper@bobturf.org>
 ;;;;
 ;;;; This library is free software; you can redistribute it and/or
@@ -20,22 +20,23 @@
 
 
 
-(defpackage :mime-system
+(defpackage :cl-mime-system
   (:use :asdf :cl))
 
-(in-package :mime-system)
+(in-package :cl-mime-system)
 
-(defsystem :mime
+(defsystem :cl-mime
   :name "MIME"
-  :author "Robert Marlow <rob@bobturf.org>"
-  :version "0.3.0"
-  :maintainer "Robert Marlow <rob@bobturf.org>"
-  :depends-on (:kmrcl :cl-ppcre)
+  :author "Robert Marlow <bobstopper@bobturf.org>"
+  :version "0.5.1"
+  :maintainer "Robert Marlow <bobstopper@bobturf.org>"
+  :depends-on (:cl-ppcre :cl-base64 :cl-qprint)
   :serial t
   :components
-  ((:file "fundamentals")
+  ((:file "package")
    (:file "utilities")
    (:file "classes")
    (:file "headers")
+   (:file "encoding")
    (:file "parse-mime")
    (:file "print-mime")))

@@ -51,16 +51,16 @@
 
 
 (defmethod get-header ((mime-obj mime) (header (eql :content-disposition)))
-  (aif (slot-value mime-obj (intern (string header) :mime))
-       (cons header
-	     (format nil "~A~A"
-		     (content-disposition mime-obj)
-		     (format nil "~{~{;~%~5,5T~A=\"~A\"~}~}"
-			     (mapcar
-			      (lambda (parm-pair)
-				(cons (string-downcase (symbol-name (car parm-pair)))
-				 (cdr parm-pair)))
-			      (content-disposition-parameters mime-obj)))))))
+  (when (content-disposition mime-obj)
+    (cons header
+	  (format nil "~A~A"
+		  (content-disposition mime-obj)
+		  (format nil "~{~{;~%~5,5T~A=\"~A\"~}~}"
+			  (mapcar
+			   (lambda (parm-pair)
+			     (cons (string-downcase (symbol-name (car parm-pair)))
+				   (cdr parm-pair)))
+			   (content-disposition-parameters mime-obj)))))))
 
 
 (defmethod get-header ((mime-obj mime) (header symbol))

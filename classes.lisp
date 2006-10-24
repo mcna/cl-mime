@@ -47,7 +47,16 @@
    (content-transfer-encoding
     :accessor content-transfer-encoding
     :initarg :encoding
-    :initform "7bit")
+    :initform :7bit
+    :documentation
+    "Encoding to use when printing the MIME content.
+May be :7BIT :BASE64 or :QUOTED-PRINTABLE")
+   (content-encoding
+    :accessor content-encoding
+    :initarg :content-encoding
+    :initform :7bit
+    :documentation "Encoding the MIME content is currently in.
+May be :7BIT :BASE64 or :QUOTED-PRINTABLE")
    (content-disposition
     :accessor content-disposition
     :initarg :disposition
@@ -98,13 +107,11 @@
    (prologue
     :accessor prologue
     :initform nil
-    :initarg :prologue
-    :type string)
+    :initarg :prologue)
    (epilogue
     :accessor epilogue
     :initform nil
-    :initarg :epilogue
-    :type string))
+    :initarg :epilogue))
   (:documentation "Multipart Mime Object Representation"))
     
 ;;; This boundary contains text which should never appear in the
