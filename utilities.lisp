@@ -22,6 +22,17 @@
 
 (in-package :mime)
 
+;;; This function reads a line from the given input stream that
+;;; is either terminated by LF or by CRLF.
+(defun read-line/strip-cr (&rest args)
+  (multiple-value-bind (line missing-newline-p)
+      (apply #'read-line args)
+    (if (not missing-newline-p)
+	(let ((l (length line)))
+	  (if (and (>= l 1) (char= (char line (1- l)) #\Return))
+	      (values (subseq line 0 (1- l)) missing-newline-p)
+	      (values line missing-newline-p)))
+	(values line missing-newline-p))))
 
 ;;; This macro does very little other than tidy up the do-loops I tend to do
 ;;; when reading files line-by-line. 
@@ -29,8 +40,8 @@
   "Reads lines into LINE-VAR from STREAM until either EOF is
 reached or EXIT-CLAUSE is true where upon EXIT-BODY is executed.
 Executes BODY for every line in the file"
-  `(do ((,line-var (read-line ,stream nil 'eof)
-		   (read-line ,stream nil 'eof)))
+  `(do ((,line-var (read-line/strip-cr ,stream nil 'eof)
+		   (read-line/strip-cr ,stream nil 'eof)))
        ((or (eql ,line-var 'eof)
 	    ,exit-clause)
 	,@exit-body)

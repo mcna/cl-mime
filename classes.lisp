@@ -107,11 +107,13 @@ May be :7BIT :BASE64 or :QUOTED-PRINTABLE")
    (prologue
     :accessor prologue
     :initform nil
-    :initarg :prologue)
+    :initarg :prologue
+    :type (or null string))
    (epilogue
     :accessor epilogue
     :initform nil
-    :initarg :epilogue))
+    :initarg :epilogue
+    :type (or null string)))
   (:documentation "Multipart Mime Object Representation"))
     
 ;;; This boundary contains text which should never appear in the

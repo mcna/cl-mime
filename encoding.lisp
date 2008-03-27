@@ -35,7 +35,7 @@
 	     (string (string-to-base64-string content :columns 75))
 	     ((array (unsigned-byte 8))
 	      (usb8-array-to-base64-string content :columns 75))))
-	  (:quoted-printable (qprint:encode content))))))
+	  (:quoted-printable (qprint:encode content :columns 75))))))
 
 
 (defun decode-content (mime)
