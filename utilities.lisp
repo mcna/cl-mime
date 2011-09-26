@@ -70,6 +70,14 @@ Executes BODY for every line in the file"
   "Returns keyword for a name"
   (etypecase name
     (keyword name)
-    (string (nth-value 0 (intern (string-upcase name) :keyword)))
-    (symbol (nth-value 0 (intern (symbol-name name) :keyword)))))
+    ((or string symbol)
+     #-allegro
+     (nth-value 0 (let ((*package* (find-package :keyword)))
+                    (read-from-string (string name))))
+     #+allegro
+     (ecase excl:*current-case-mode*
+       ((:case-insensitive-upper)
+        (intern (string-upcase name) :keyword))
+       ((:case-insensitive-lower :case-sensitive-lower)
+        (intern (string-downcase name) :keyword))))))
 

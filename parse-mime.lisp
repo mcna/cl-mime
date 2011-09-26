@@ -55,11 +55,8 @@ object representing it or nil if the message is not MIME compatible"))
 
       (if (equal mime-version "1.0")
 	
-	  (let* ((encoding (intern (string-upcase
-				    (or (cdr (assoc :content-transfer-encoding
-						    headers))
-					"7BIT"))
-				   :keyword))
+	  (let* ((encoding (ensure-keyword (or (cdr (assoc :content-transfer-encoding headers))
+                                               :7bit)))
 		 (mime-obj-gen
 		  (list
 		   mime-type
